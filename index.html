@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление задачами</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #taskInput {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #dueDateInput {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #addBtn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #addBtn:hover {
+            background-color: #45a049;
+        }
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        .taskItem {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+        .taskItem.completed {
+            background-color: #f0f0f0;
+            text-decoration: line-through;
+        }
+        .deleteBtn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 3px 5px;
+            background-color: #ff6666;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .dueDate {
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
+        .motivation {
+            font-style: italic;
+            margin-top: 20px;
+            text-align: center;
+            color: #777;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media screen and (max-width: 480px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Планирование задач</h1>
+        <input type="text" id="taskInput" placeholder="Добавить новую задачу">
+        <input type="date" id="dueDateInput">
+        <button id="addBtn">Добавить</button>
+        <ul id="taskList"></ul>
+        <div class="motivation" id="motivation">
+            <p id="motivationText"></p>
+        </div>
+    </div>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const dueDateInput = document.getElementById('dueDateInput');
+        const addBtn = document.getElementById('addBtn');
+        const taskList = document.getElementById('taskList');
+        const motivationText = document.getElementById('motivationText');
+        const motivation = [
+            "Помните, что каждая задача, которую вы завершаете, приближает вас к вашим целям!",
+            "Сосредоточьтесь на важном, не позволяйте мелочам отвлекать вас от ваших целей.",
+            "Не забывайте отдыхать и наслаждаться процессом достижения целей. Это важно для поддержания мотивации."
+        ];
+
+        // При загрузке страницы загружаем задачи из localStorage, если они есть
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTasks = localStorage.getItem('tasks');
+            if (savedTasks) {
+                taskList.innerHTML = savedTasks;
+            }
+        });
+
+        addBtn.addEventListener('click', addTask);
+        updateMotivation();
+
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            const dueDate = dueDateInput.value;
+            if (taskText !== '') {
+                const li = document.createElement('li');
+                li.classList.add('taskItem');
+                li.innerHTML = `
+                    <input type="checkbox">
+                    <span>${taskText}</span>
+                    <button class="deleteBtn">Удалить</button>
+                    <div class="dueDate">Срок выполнения: ${dueDate}</div>
+                `;
+                taskList.appendChild(li);
+                taskInput.value = '';
+                dueDateInput.value = '';
+                // Сохраняем задачи в localStorage
+                localStorage.setItem('tasks', taskList.innerHTML);
+            }
+        }
+
+        taskList.addEventListener('click', function(event) {
+            if (event.target.tagName === 'INPUT') {
+                const taskItem = event.target.parentElement;
+                if (event.target.checked) {
+                    taskItem.classList.add('completed');
+                } else {
+                    taskItem.classList.remove('completed');
+                }
+                // Обновляем сохраненные задачи в localStorage
+                localStorage.setItem('tasks', taskList.innerHTML);
+            } else if (event.target.classList.contains('deleteBtn')) {
+                event.target.parentElement.remove();
+                // Обновляем сохраненные задачи в localStorage
+                localStorage.setItem('tasks', taskList.innerHTML);
+            }
+        });
+
+        function updateMotivation() {
+            const randomIndex = Math.floor(Math.random() * motivation.length);
+            motivationText.textContent = motivation[randomIndex];
+        }
+    </script>
+</body>
+</html>
